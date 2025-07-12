@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI - Advanced Chatbot</title>
+    <meta name="description" content="AI-powered chatbot with natural language understanding">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --primary-light: #9d50bb;
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+            --bg-color: #f9f9ff;
+            --card-bg: #ffffff;
+            --text-dark: #2e2e48;
+            --text-light: #7a7a9d;
+            --user-bubble: var(--primary);
+            --ai-bubble: #f1f3ff;
+            --shadow: 0 10px 30px rgba(110, 72, 170, 0.1);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .avatar-user {
+            background: var(--user-bubble);
+        }
+
+        .avatar-ai {
+            background: var(--gradient);
+        }
+
+        .message-content {
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .message-content-user {
+            background: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .message-content-ai {
+            background: var(--ai-bubble);
+            color: var(--text-dark);
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .chat-input-container {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.9rem 1.25rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+            outline: none;
+            transition: all 0.3s;
+            background: var(--bg-color);
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(110, 72, 170, 0.1);
+        }
+
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 72, 170, 0.3);
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            padding: 1rem 1.25rem;
+            background: var(--ai-bubble);
+            color: var(--text-dark);
+            border-radius: 1rem;
+            align-self: flex-start;
+            margin-bottom: 1.5rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-4px); }
+        }
+
+        .suggestions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-chip {
+            padding: 0.5rem 1rem;
+            background: rgba(110, 72, 170, 0.1);
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .suggestion-chip:hover {
+            background: rgba(110, 72, 170, 0.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .chat-form {
+                flex-direction: column;
+            }
+            
+            .send-button {
+                width: 100%;
+                height: 45px;
+                border-radius: 0.5rem;
+            }
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a2e;
+                --card-bg: #16213e;
+                --text-dark: #ffffff;
+                --text-light: #b8b8d1;
+                --ai-bubble: #0f3460;
+            }
+            
+            .chat-input {
+                background: #16213e;
+                color: white;
+                border-color: #0f3460;
+            }
+            
+            .suggestion-chip {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="logo-text">NexusAI</div>
+            </div>
+            <button id="new-chat" style="background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 500;">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+        </header>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="fas fa-robot"></i>
+                <div>How can I help you today?</div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message message-ai">
+                    <div class="avatar avatar-ai">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content message-content-ai">
+                        Hello! I'm NexusAI, your intelligent assistant. Ask me anything!
+                    </div>
+                </div>
+                
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="suggestions">
+                    <div class="suggestion-chip">Explain quantum computing</div>
+                    <div class="suggestion-chip">Write a poem about technology</div>
+                    <div class="suggestion-chip">How does AI work?</div>
+                    <div class="suggestion-chip">Best travel destinations</div>
+                </div>
+                
+                <form class="chat-form" id="chat-form">
+                    <textarea 
+                        class="chat-input" 
+                        id="chat-input" 
+                        placeholder="Message NexusAI..." 
+                        rows="1"
+                        required
+                    ></textarea>
+                    <button type="submit" class="send-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const newChatButton = document.getElementById('new-chat');
+            const suggestionChips = document.querySelectorAll('.suggestion-chip');
+            
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            
+            // Send message function
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addMessage(message, 'user');
+                    chatInput.value = '';
+                    chatInput.style.height = 'auto';
+                    
+                    // Show typing indicator
+                    typingIndicator.style.display = 'block';
+                    scrollToBottom();
+                    
+                    // Simulate AI response (replace with real API call)
+                    setTimeout(() => {
+                        typingIndicator.style.display = 'none';
+                        const aiResponse = generateAIResponse(message);
+                        addMessage(aiResponse, 'ai');
+                        saveChatHistory();
+                    }, 1000 + Math.random() * 1000);
+                }
+            }
+            
+            // Form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                sendMessage();
+            });
+            
+            // New chat button
+            newChatButton.addEventListener('click', function() {
+                if (confirm('Start a new chat? Current conversation will be cleared.')) {
+                    while (chatMessages.children.length > 2) {
+                        chatMessages.removeChild(chatMessages.lastChild);
+                    }
+                    localStorage.removeItem('chatHistory');
+                    addMessage("Hello! What would you like to talk about?", 'ai');
+                }
+            });
+            
+            // Suggestion chips
+            suggestionChips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    chatInput.value = this.textContent;
+                    chatInput.focus();
+                });
+            });
+            
+            // Load chat history
+            function loadChatHistory() {
+                const history = localStorage.getItem('chatHistory');
+                if (history) {
+                    const messages = JSON.parse(history);
+                    messages.forEach(msg => {
+                        if (!msg.content.includes("Hello! I'm NexusAI")) {
+                            addMessage(msg.content, msg.sender);
+                        }
+                    });
+                }
+            }
+            
+            // Save chat history
+            function saveChatHistory() {
+                const messages = [];
+                document.querySelectorAll('.message').forEach(el => {
+                    const sender = el.classList.contains('message-ai') ? 'ai' : 'user';
+                    const content = el.querySelector('.message-content').textContent;
+                    messages.push({ sender, content });
+                });
+                localStorage.setItem('chatHistory', JSON.stringify(messages));
+            }
+            
+            // Add message to chat
+            function addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message message-${sender}`;
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = `avatar avatar-${sender}`;
+                avatarDiv.innerHTML = sender === 'ai' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = `message-content message-content-${sender}`;
+                contentDiv.textContent = content;
+                
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                chatMessages.insertBefore(messageDiv, typingIndicator);
+                scrollToBottom();
+            }
+            
+           async function generateAIResponse(userMessage) {
+    try {
+        const response = await fetch('YOUR_API_ENDPOINT', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage })
+        });
+        const data = await response.json();
+        return data.reply;
+    } catch (error) {
+        console.error("API Error:", error);
+        return "Sorry, I'm having trouble responding. Please try again.";
+    }
+}
+            
+                
+                const responses = [
+                    `I understand you're asking about "${userMessage}". Here's what I know...`,
+                    `Regarding "${userMessage}", there are several important points...`,
+                    `"${userMessage}" is interesting. Based on my knowledge...`,
+                    `Let me analyze your question about "${userMessage}"...`,
+                    `I've researched "${userMessage}" and found these insights...`
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+            
+            // Scroll to bottom
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Initial load
+            loadChatHistory();
+        });
+    </script>
+</body>
+</html>
